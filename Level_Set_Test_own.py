@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-def two_phase_level_set_evolution():
+def two_phase_level_set_evolution(F=1,t_final=1 ):
     # 1. Grid setup
     N = 100
     L = 2.0
@@ -19,7 +19,26 @@ def two_phase_level_set_evolution():
     # Signed Distance Function for this problem is just distance from x-axis
     phi = Y
 
-    F = 1 # Velocity will be constant and upwards
+    # F = 1  by default. Velocity will be constant and in the vertical direction
     t_final = 1 # amount of time to run the sim for
-    dt = (0.9*dx/F)  # CLF condition, set alpha = 0.9 -->
+    dt = (0.9*dx/F)  # CLF condition, set alpha = 0.9
     num_steps = int(t_final/dt)
+
+    #Start of Numerics
+    for step in range(num_steps):
+        phi_x_fwd = (np.roll(phi, -1, axis=1) - phi) / dx # not needed in this case since the velocity in
+        phi_x_bwd = (phi - np.roll(phi,  1, axis=1)) / dx # horizontal direction is zero.
+        phi_y_fwd = (np.roll(phi, -1, axis=0) - phi) / dx
+        phi_y_bwd = (phi - np.roll(phi,  1, axis=0)) / dx
+
+        # upwind differencing
+        if F == 0:
+            break # no movement throughout simulation, phi stays the same
+        elif F > 0:
+            gradient_phi_magnitude = (phi - phi_y_bwd)/dx
+        else: # F < 0
+            gradient_phi_magnitude = (phi_y_fwd - phi)/dx
+
+
+        # Update phi with new values
+        phi = phi - dt * F * gradient_phi_magnitude
