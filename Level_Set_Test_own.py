@@ -5,6 +5,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+import matplotlib.animation as animation
 
 def two_phase_level_set_evolution(F=1,t_final=1 ):
     # 1. Grid setup
@@ -24,6 +25,10 @@ def two_phase_level_set_evolution(F=1,t_final=1 ):
     dt = (0.9*dx/F)  # CLF condition, set alpha = 0.9
     num_steps = int(t_final/dt)
 
+    # Want to make an animation of the level set traveling
+    phi_history = [phi.copy()]  # store every step's phi for the animation
+
+
     #Start of Numerics
     for step in range(num_steps):
         phi_x_fwd = (np.roll(phi, -1, axis=1) - phi) / dx # not needed in this case since the velocity in
@@ -42,3 +47,25 @@ def two_phase_level_set_evolution(F=1,t_final=1 ):
 
         # Update phi with new values
         phi = phi - dt * F * gradient_phi_magnitude
+
+        phi_history.append(phi.copy()) # save a snapshot after each step
+
+        # --- Now build the animation from the saved snapshots ---
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.set_xlim(X.min(), X.max())
+    ax.set_ylim(Y.min(), Y.max())
+    ax.set_aspect('equal')
+
+    def update(frame):
+        ax.clear()
+        ax.set_xlim(X.min(), X.max())
+        ax.set_ylim(Y.min(), Y.max())
+        ax.set_aspect('equal')
+        ax.set_title(f"Step {frame}")
+        ax.contour(X, Y, phi_history[frame], levels=[0], colors='red')
+
+    ani = animation.FuncAnimation(fig, update, frames=len(phi_history), interval=50)
+
+    # Save as gif (needs pillow) or mp4 (needs ffmpeg)
+    ani.save("level_set_evolution.gif", writer='pillow', fps=20)
+    plt.show()
