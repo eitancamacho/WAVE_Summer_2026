@@ -40,9 +40,9 @@ def two_phase_level_set_evolution(F=1,t_final=1 ):
         if F == 0:
             break # no movement throughout simulation, phi stays the same
         elif F > 0:
-            gradient_phi_magnitude = (phi - phi_y_bwd)/dx
+            gradient_phi_magnitude = phi_y_bwd
         else: # F < 0
-            gradient_phi_magnitude = (phi_y_fwd - phi)/dx
+            gradient_phi_magnitude = phi_y_fwd
 
 
         # Update phi with new values
@@ -69,3 +69,6 @@ def two_phase_level_set_evolution(F=1,t_final=1 ):
     # Save as gif (needs pillow) or mp4 (needs ffmpeg)
     ani.save("level_set_evolution.gif", writer='pillow', fps=20)
     plt.show()
+
+if __name__ == "__main__":
+    two_phase_level_set_evolution()
