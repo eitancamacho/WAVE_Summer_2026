@@ -47,6 +47,8 @@ def two_phase_level_set_evolution(F=1,t_final=1 ):
 
         # Update phi with new values
         phi = phi - dt * F * gradient_phi_magnitude
+        phi[0, :]  = phi[1, :]    # bottom row - just copy its only valid neighbor bc roll is wrong
+        phi[-1, :] = phi[-2, :]   # top row same
 
         phi_history.append(phi.copy()) # save a snapshot after each step
 
@@ -67,7 +69,7 @@ def two_phase_level_set_evolution(F=1,t_final=1 ):
     ani = animation.FuncAnimation(fig, update, frames=len(phi_history), interval=50)
 
     # Save as gif (needs pillow) or mp4 (needs ffmpeg)
-    ani.save("level_set_evolution.gif", writer='pillow', fps=20)
+    ani.save("level_set_evolution.gif", writer='pillow', fps=5)
     plt.show()
 
 if __name__ == "__main__":
